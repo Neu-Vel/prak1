@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Настройка для мастер-ноды
+  config.vm.define "master" do |master|
+    master.vm.box = "ubuntu/focal64"
+    master.vm.hostname = "master-node"
+    master.vm.network "private_network", ip: "192.168.56.10"
+    master.vm.network "forwarded_port", guest: 80, host: 8080
+    master.vm.network "forwarded_port", guest: 3000, host: 3000
+    master.vm.network "forwarded_port", guest: 8081, host: 8081
+    
+    master.vm.provider "virtualbox" do |vb|
+      vb.name = "master-node"
+      vb.memory = "2048"
+      vb.cpus = 2
+    end
+    
+    master.vm.provision "shell", path: "scripts/setup_master.sh"
+    master.vm.provision "shell", path: "scripts/deploy_app.sh", run: "always"
+  end
+
+  # Настройка для воркер-ноды
+  config.vm.define "worker" do |worker|
+    worker.vm.box = "ubuntu/focal64"
+    worker.vm.hostname = "worker-node"
+    worker.vm.network "private_network", ip: "192.168.56.11"
+    worker.vm.network "forwarded_port", guest: 80, host: 8082
+    worker.vm.network "forwarded_port", guest: 3000, host: 3001
+    
+    worker.vm.provider "virtualbox" do |vb|
+      vb.name = "worker-node"
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+    
+    worker.vm.provision "shell", path: "scripts/setup_worker.sh"
+  end
+end

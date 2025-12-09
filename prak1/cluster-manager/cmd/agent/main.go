@@ -18,6 +18,7 @@ const controllerURL = "http://127.0.0.1:8080"
 var (
     mu       sync.Mutex
     replicas = make(map[string]*exec.Cmd)
+    controllerAddr = "https://192.168.56.10:8080"
 )
 
 func main() {
